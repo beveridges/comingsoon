@@ -1,0 +1,26 @@
+# Disable directory listing
+Options -Indexes
+
+# Force redirect using mod_rewrite (most reliable method)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # If accessing the downloads directory root, redirect to coming-soon
+    RewriteCond %{REQUEST_URI} ^/downloads/?$
+    RewriteRule ^(.*)$ /coming-soon/en/ [R=301,L]
+    
+    # If it's a directory request without trailing slash, redirect
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteCond %{REQUEST_URI} !/$
+    RewriteRule ^(.*)$ /coming-soon/en/ [R=301,L]
+</IfModule>
+
+# Explicitly set directory index (backup)
+DirectoryIndex index.php index.html
+
+# Deny access if mod_rewrite is not available
+<IfModule !mod_rewrite.c>
+    # Fallback: deny directory listing
+    Options -Indexes
+</IfModule>
+

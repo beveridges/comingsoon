@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>moviolabs – Coming Soon</title>
+
+  <!-- SEO Meta -->
+  <meta name="description" content="A revolution in motion analysis is almost here. moviolabs delivers precision human performance analytics." />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Social Meta -->
+  <meta property="og:title" content="Moviolabs – Coming Soon" />
+  <meta property="og:description" content="A revolution in motion analysis is almost here." />
+  <meta property="og:image" content="../img/moviolabs_og_image.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.moviolabs.com/coming-soon/en/" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../img/headshot.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Preload background video -->
+  <link rel="preload" as="video" href="../video/background3.webm" type="video/webm" />
+
+  <!-- Google reCAPTCHA -->
+  <script src="https://www.google.com/recaptcha/api.js?render=6Ld6kOMrAAAAAGdH-HwPfJFzZqzUOXZ9TKCIS9r1"></script>
+
+  <!-- Scripts -->
+  <script defer src="../js/script.js"></script>
+</head>
+<body>
+  <video autoplay muted loop id="bg-video" playsinline>
+    <source src="../video/background3.webm" type="video/webm">
+    Your browser does not support video playback.
+  </video>
+
+  <div class="overlay"></div>
+
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <a href="../en/" class="lang-link active">EN</a>
+    <span class="lang-separator">|</span>
+    <a href="../es/" class="lang-link">ES</a>
+    <span class="lang-separator">|</span>
+    <a href="../de/" class="lang-link">DE</a>
+  </div>
+
+  <div class="content-box">
+    <h1>COMING SOON</h1>
+    <p>A revolution in motion analysis is almost here.</p>
+
+    <form id="notifyForm">
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      <button type="submit" data-original-text="Notify Me">Notify Me</button>
+    </form>
+
+    <p class="privacy"><a href="#" onclick="showPrivacyModal(); return false;">Privacy statement</a></p>
+
+    <div class="socials">
+      <div class="logo-container">
+        <img src="../img/coming.soon.light.on.darkL.svg" alt="Moviolabs logo" class="logo-bottom" />
+      </div>
+      <a href="https://www.instagram.com/moviolabs/" target="_blank">
+        <img src="../img/instagram.svg" alt="Instagram">
+      </a>
+    </div>
+
+    <p id="response"></p>
+  </div>
+</body>
+</html>

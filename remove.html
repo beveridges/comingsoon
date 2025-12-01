@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remove Email - MOVIOLABS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .removal-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(30, 30, 30, 0.9);
+      padding: 40px 50px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+    }
+    
+    .removal-container h2 {
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .removal-container p {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 25px;
+    }
+    
+    .removal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .removal-form input {
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      outline: none;
+    }
+    
+    .removal-form button {
+      padding: 12px 24px;
+      border: none;
+      background: #1e90ff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    
+    .removal-form button:hover {
+      background: #0077cc;
+    }
+    
+    .removal-form button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    
+    #removalResponse {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 5px;
+      display: none;
+    }
+    
+    #removalResponse.success {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+      border: 1px solid #2ecc71;
+      display: block;
+    }
+    
+    #removalResponse.error {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+      display: block;
+    }
+    
+    .back-link {
+      margin-top: 20px;
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+    
+    .back-link:hover {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  
+  <div class="removal-container">
+    <h2>Remove Your Email</h2>
+    <p>Enter your email address to be removed from our notification list.</p>
+    
+    <form id="removalForm" class="removal-form">
+      <input type="email" id="removalEmail" name="email" placeholder="Enter your email address" required>
+      <button type="submit">Remove My Email</button>
+    </form>
+    
+    <div id="removalResponse"></div>
+    
+    <a href="en/" class="back-link">← Back to Coming Soon</a>
+  </div>
+
+  <script>
+    document.getElementById('removalForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('removalEmail').value.trim();
+      const button = this.querySelector('button');
+      const response = document.getElementById('removalResponse');
+      
+      // Disable form
+      button.disabled = true;
+      button.textContent = 'Processing...';
+      response.className = '';
+      response.style.display = 'none';
+      
+      // Submit removal request
+      fetch('remove_email.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `email=${encodeURIComponent(email)}`
+      })
+      .then(res => res.text())
+      .then(text => {
+        if (text.includes('Success') || text.includes('removed')) {
+          response.className = 'success';
+          response.textContent = text;
+          document.getElementById('removalForm').reset();
+        } else {
+          response.className = 'error';
+          response.textContent = text;
+        }
+        button.disabled = false;
+        button.textContent = 'Remove My Email';
+      })
+      .catch(() => {
+        response.className = 'error';
+        response.textContent = 'Error: Could not process your request. Please try again later.';
+        button.disabled = false;
+        button.textContent = 'Remove My Email';
+      });
+    });
+  </script>
+</body>
+</html>
+

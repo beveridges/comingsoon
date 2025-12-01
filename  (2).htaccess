@@ -1,0 +1,20 @@
+# Disable directory listing for /downloads/
+# Upload this file to /public_html/downloads/.htaccess
+
+# Disable directory browsing
+Options -Indexes
+
+# Optional: Redirect to a specific page or show 403 Forbidden
+# Uncomment one of the following:
+
+# Option 1: Show 403 Forbidden
+# RewriteEngine On
+# RewriteRule ^$ - [F,L]
+
+# Option 2: Redirect to coming-soon page
+# RewriteEngine On
+# RewriteRule ^$ /coming-soon/en/ [R=301,L]
+
+# Option 3: Show a custom message (requires index.html)
+# (Just create an index.html in the downloads folder)
+

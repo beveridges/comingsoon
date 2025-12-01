@@ -1,0 +1,15 @@
+# Ensure index.html is served as the default index file
+DirectoryIndex index.html index.php
+
+# Disable directory listings globally
+Options -Indexes
+
+# Handle downloads directory specifically
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect /downloads/ to coming-soon
+    RewriteCond %{REQUEST_URI} ^/downloads/?$
+    RewriteRule ^(.*)$ /coming-soon/en/ [R=301,L]
+</IfModule>
+

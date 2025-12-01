@@ -1,0 +1,14 @@
+# Deny all web access to this directory
+# This file should be uploaded to /home/moviolab/private/.htaccess
+# on your server to protect the database file
+
+<IfModule mod_authz_core.c>
+    # Apache 2.4+
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2
+    Deny from all
+</IfModule>
+

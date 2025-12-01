@@ -1,0 +1,7 @@
+# Ensure index.html is served as the default index file
+DirectoryIndex index.html index.php
+
+# Optional: Redirect root to coming-soon if index.html doesn't exist
+# RewriteEngine On
+# RewriteRule ^$ /coming-soon/en/ [R=301,L]
+

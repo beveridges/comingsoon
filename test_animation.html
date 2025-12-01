@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Success Animation Test - In Context</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* Simulated video background */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 1;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 2;
+    }
+
+    /* === MAIN CONTENT BOX === */
+    .content-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.5);
+      transform-origin: center;
+      background: rgba(30, 30, 30, 0.6);
+      padding: 40px 50px;
+      border-radius: 12px;
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+      backdrop-filter: blur(2px);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    
+    .thank-you-message {
+      color: white;
+      font-size: 1.2em;
+      font-weight: 500;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .content-box.showing-success {
+      /* Dimensions locked via inline styles in JavaScript - no CSS changes */
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 15px;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    p {
+      font-size: 1.05em;
+      line-height: 1.5;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 2px;
+      flex-wrap: nowrap;
+      position: relative;
+      min-height: 44px; /* Maintain minimum height */
+    }
+
+    input[type="email"] {
+      padding: 12px;
+      width: 70%;
+      border: none;
+      border-radius: 5px 0 0 5px;
+      outline: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-size: 14px;
+      line-height: 1.2;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: #1e90ff;
+      color: white;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-size: 14px;
+      line-height: 1.2;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: #0077cc;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .socials {
+      margin-top: 30px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .socials a img {
+      width: 42px;
+      height: auto;
+      opacity: 0.9;
+      transition: opacity 0.3s;
+      filter: drop-shadow(0 0 4px rgba(0,0,0,0.6));
+    }
+
+    .socials .logo-bottom {
+      width: 260px !important;
+      height: auto;
+      opacity: 0.95;
+      vertical-align: middle;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      filter: drop-shadow(0 0 6px rgba(0,0,0,0.6));
+    }
+
+  </style>
+</head>
+<body>
+  <div id="bg-video"></div>
+  <div class="overlay"></div>
+
+  <div class="content-box">
+    <h1>COMING SOON</h1>
+    <p>A revolution in motion analysis is almost here.</p>
+
+    <form id="notifyForm">
+      <input type="email" id="email" name="email" placeholder="Enter your email">
+      <button type="submit" data-original-text="Notify Me">Notify Me</button>
+    </form>
+
+    <div class="socials">
+      <div class="logo-container">
+        <img src="img/coming.soon.light.on.darkL.svg" alt="Moviolabs logo" class="logo-bottom" onerror="this.style.display='none'">
+      </div>
+      <a href="https://www.instagram.com/moviolabs/" target="_blank">
+        <img src="img/instagram.svg" alt="Instagram" onerror="this.style.display='none'">
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Form handler - replaces form with thank you message, locks box size
+    const form = document.getElementById('notifyForm');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const contentBox = document.querySelector('.content-box');
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Lock content box dimensions to prevent resizing
+      if (contentBox) {
+        const currentHeight = contentBox.offsetHeight;
+        const currentWidth = contentBox.offsetWidth;
+        const computedStyle = window.getComputedStyle(contentBox);
+        const currentPadding = computedStyle.padding;
+        const currentMaxWidth = computedStyle.maxWidth;
+        
+        // Lock ALL dimensions with inline styles
+        contentBox.style.setProperty("height", currentHeight + "px", "important");
+        contentBox.style.setProperty("min-height", currentHeight + "px", "important");
+        contentBox.style.setProperty("max-height", currentHeight + "px", "important");
+        contentBox.style.setProperty("width", currentWidth + "px", "important");
+        contentBox.style.setProperty("min-width", currentWidth + "px", "important");
+        contentBox.style.setProperty("max-width", currentMaxWidth, "important");
+        contentBox.style.setProperty("padding", currentPadding, "important");
+      }
+      
+      // Keep form in layout but hide its contents and show thank you message instead
+      const formHeight = form.offsetHeight;
+      const formMarginTop = window.getComputedStyle(form).marginTop;
+      
+      // Hide form inputs/button
+      form.querySelector('input').style.display = 'none';
+      form.querySelector('button').style.display = 'none';
+      form.style.height = formHeight + 'px';
+      form.style.marginTop = formMarginTop;
+      form.style.display = 'flex';
+      form.style.alignItems = 'center';
+      form.style.justifyContent = 'center';
+      
+      // Create and show thank you message inside the form
+      const thankYouMessage = document.createElement('p');
+      thankYouMessage.className = 'thank-you-message';
+      thankYouMessage.textContent = "Thank you for your interest!";
+      thankYouMessage.style.margin = '0';
+      
+      // Add message to form
+      form.appendChild(thankYouMessage);
+    });
+    
+    // Also allow button click without validation
+    submitButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!submitButton.disabled) {
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>moviolabs – Coming Soon</title>
+  
+  <!-- IP-based language detection with fallback -->
+  <script>
+    (function() {
+      // First, try to get language from server-side IP detection
+      fetch('/coming-soon/detect_language.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.language) {
+            window.location.replace('/coming-soon/' + data.language + '/');
+            return;
+          }
+          // Fallback to browser language detection
+          fallbackRedirect();
+        })
+        .catch(() => {
+          // If fetch fails, use browser language
+          fallbackRedirect();
+        });
+      
+      function fallbackRedirect() {
+        const lang = navigator.language || navigator.userLanguage;
+        let redirectPath = '/coming-soon/en/'; // default
+        
+        if (lang.startsWith('es')) {
+          redirectPath = '/coming-soon/es/';
+        } else if (lang.startsWith('de')) {
+          redirectPath = '/coming-soon/de/';
+        }
+        
+        window.location.replace(redirectPath);
+      }
+    })();
+  </script>
+  
+  <!-- Fallback redirects for no-JS -->
+  <meta http-equiv="refresh" content="0; url=/coming-soon/en/">
+  <link rel="canonical" href="/coming-soon/en/">
+</head>
+<body style="margin: 0; padding: 40px; font-family: system-ui, sans-serif; text-align: center; background: #0d1117; color: #e6edf3;">
+  <p>Redirecting to <a href="/coming-soon/en/" style="color: #1e90ff;">coming soon page</a>...</p>
+  <p style="margin-top: 20px; color: #8b949e; font-size: 14px;">If you are not redirected automatically, <a href="/coming-soon/en/" style="color: #1e90ff;">click here</a>.</p>
+</body>
+</html>
+

@@ -1,0 +1,29 @@
+# Database files
+*.sqlite
+*.sqlite3
+database.sqlite
+email_list.sqlite
+
+# Configuration files with sensitive data
+config.php
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+*.tmp
+*.temp
+
