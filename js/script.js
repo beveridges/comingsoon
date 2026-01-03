@@ -309,23 +309,26 @@ document.addEventListener("DOMContentLoaded", () => {
     playClip(currentIndex);
   } else {
     // === Desktop ===
-    // Video element already has autoplay attribute, but ensure it plays
-    // in case browser blocks autoplay
-    if (video.paused) {
-      video.play().catch(err => {
-        // Autoplay blocked - will play when user interacts or when video is ready
-        console.warn("Video autoplay blocked:", err);
-      });
-    }
+    // Show first frame immediately when metadata loads (fast)
+    video.addEventListener('loadedmetadata', function() {
+      // Seek to first frame to display it immediately (prevents black screen)
+      video.currentTime = 0;
+      // Browser will continue loading because autoplay is set
+    }, { once: true });
     
-    // Also try to play when video becomes ready (handles delayed autoplay)
-    video.addEventListener('loadeddata', function() {
+    // When enough data is loaded, start playing
+    video.addEventListener('canplay', function() {
       if (video.paused) {
         video.play().catch(err => {
           console.warn("Video play failed:", err);
         });
       }
     }, { once: true });
+    
+    // Ensure first frame shows if metadata already loaded
+    if (video.readyState >= 1) {
+      video.currentTime = 0;
+    }
   }
 });
 

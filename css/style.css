@@ -109,9 +109,20 @@ body, html {
 }
 
 
-/* German version - slightly wider to accommodate longer text */
+/* German version - wider to accommodate longer text */
 .content-box-german {
-  max-width: 580px;
+  max-width: 650px;
+}
+
+/* Spanish version - wider to accommodate longer text */
+.content-box-spanish {
+  max-width: 680px;
+}
+
+/* Prevent text wrapping on German and Spanish subtitle text */
+.content-box-german > p:first-of-type,
+.content-box-spanish > p:first-of-type {
+  white-space: nowrap;
 }
 
 h1 {
@@ -328,7 +339,11 @@ button:hover {
   }
   
   .content-box-german {
-    max-width: 560px;
+    max-width: 600px;
+  }
+  
+  .content-box-spanish {
+    max-width: 620px;
   }
 }
 
