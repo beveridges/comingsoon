@@ -16,14 +16,29 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.moviolabs.com/coming-soon/es/" />
 
+  <!-- Resource Hints for faster loading -->
+  <link rel="dns-prefetch" href="https://www.google.com">
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="../img/headshot.png" />
 
+  <!-- Preload critical resources -->
+  <link rel="preload" as="style" href="../css/style.css" />
+  <link rel="preload" as="script" href="../js/script.js" />
+  <link rel="preload" as="image" href="../img/coming.soon.light.on.darkL.svg" />
+  <link rel="preload" as="image" href="../img/instagram.svg" />
+  <link rel="preload" as="font" href="../fonts/Fenomen Sans Book.woff2" type="font/woff2" crossorigin />
+
+  <!-- Preload background video with high priority -->
+  <link rel="preload" as="video" href="../video/background3.webm" type="video/webm" />
+
+  <!-- Prefetch other language pages for instant switching -->
+  <link rel="prefetch" href="../en/" />
+  <link rel="prefetch" href="../de/" />
+
   <!-- Styles -->
   <link rel="stylesheet" href="../css/style.css" />
-
-  <!-- Preload background video -->
-  <link rel="preload" as="video" href="../video/background3.webm" type="video/webm" />
 
   <!-- Google reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js?render=6Ld6kOMrAAAAAGdH-HwPfJFzZqzUOXZ9TKCIS9r1"></script>
@@ -32,7 +47,7 @@
   <script defer src="../js/script.js"></script>
 </head>
 <body>
-    <video autoplay muted loop id="bg-video" playsinline>
+    <video autoplay muted loop id="bg-video" playsinline preload="auto">
         <source src="../video/background3.webm" type="video/webm">
         Su navegador no admite la reproducción de vídeo.
     </video>

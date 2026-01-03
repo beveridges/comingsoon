@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eliminar Email - MOVIOLABS</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .removal-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(30, 30, 30, 0.9);
+      padding: 40px 50px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+    }
+    
+    .removal-container h2 {
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .removal-container p {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 25px;
+    }
+    
+    .removal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .removal-form input {
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .removal-form button {
+      padding: 12px 24px;
+      border: none;
+      background: #1e90ff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .removal-form button:hover {
+      background: #0077cc;
+    }
+    
+    .removal-form button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    
+    #removalResponse {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 5px;
+      display: none;
+    }
+    
+    #removalResponse.success {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+      border: 1px solid #2ecc71;
+      display: block;
+    }
+    
+    #removalResponse.error {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+      display: block;
+    }
+    
+    .back-link {
+      margin-top: 20px;
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+    
+    .back-link:hover {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  
+  <div class="removal-container">
+    <h2>Eliminar Tu Email</h2>
+    <p>Ingresa tu dirección de correo electrónico para ser eliminado de nuestra lista de notificaciones.</p>
+    
+    <form id="removalForm" class="removal-form">
+      <input type="email" id="removalEmail" name="email" placeholder="Ingresa tu dirección de correo" required>
+      <button type="submit">Eliminar Mi Email</button>
+    </form>
+    
+    <div id="removalResponse"></div>
+    
+    <a href="index.html" class="back-link">← Volver a Próximamente</a>
+  </div>
+
+  <script>
+    document.getElementById('removalForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('removalEmail').value.trim();
+      const button = this.querySelector('button');
+      const response = document.getElementById('removalResponse');
+      
+      // Disable form
+      button.disabled = true;
+      button.textContent = 'Procesando...';
+      response.className = '';
+      response.style.display = 'none';
+      
+      // Submit removal request
+      fetch('../remove_email.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `email=${encodeURIComponent(email)}`
+      })
+      .then(res => res.text())
+      .then(text => {
+        const messages = {
+          success: "Éxito: Tu dirección de correo ha sido eliminada de nuestra lista.",
+          notFound: "Esta dirección de correo no está en nuestra base de datos.",
+          error: "Error: No se pudo procesar tu solicitud. Por favor, intenta de nuevo más tarde."
+        };
+        
+        if (text.includes('Success') || text.includes('removed')) {
+          response.className = 'success';
+          response.textContent = messages.success;
+          document.getElementById('removalForm').reset();
+        } else if (text.includes('not in our database')) {
+          response.className = 'error';
+          response.textContent = messages.notFound;
+        } else {
+          response.className = 'error';
+          response.textContent = messages.error;
+        }
+        button.disabled = false;
+        button.textContent = 'Eliminar Mi Email';
+      })
+      .catch(() => {
+        response.className = 'error';
+        response.textContent = 'Error: No se pudo procesar tu solicitud. Por favor, intenta de nuevo más tarde.';
+        button.disabled = false;
+        button.textContent = 'Eliminar Mi Email';
+      });
+    });
+  </script>
+</body>
+</html>
+

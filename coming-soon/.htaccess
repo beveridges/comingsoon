@@ -1,6 +1,3 @@
-# Ensure index.php is served first for instant server-side redirect
-DirectoryIndex index.php index.html
-
 # MIME types for video files (critical for video playback)
 <IfModule mod_mime.c>
     AddType video/webm .webm
@@ -15,7 +12,10 @@ DirectoryIndex index.php index.html
     </FilesMatch>
 </IfModule>
 
-# Optional: Redirect root to coming-soon if index.html doesn't exist
-# RewriteEngine On
-# RewriteRule ^$ /coming-soon/en/ [R=301,L]
+# Cache control for video files (optional - helps with performance)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType video/webm "access plus 1 year"
+    ExpiresByType video/mp4 "access plus 1 year"
+</IfModule>
 

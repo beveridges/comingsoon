@@ -1,8 +1,22 @@
-# Ensure index.html is served as the default index file
-DirectoryIndex index.html index.php
+# Ensure index.php is served first for instant server-side redirect
+DirectoryIndex index.php index.html
 
 # Disable directory listings globally
 Options -Indexes
+
+# MIME types for video files (critical for video playback)
+<IfModule mod_mime.c>
+    AddType video/webm .webm
+    AddType video/mp4 .mp4
+    AddType video/ogg .ogv
+</IfModule>
+
+# Enable CORS for video files (if needed)
+<IfModule mod_headers.c>
+    <FilesMatch "\.(webm|mp4|ogv)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
 
 # Handle downloads directory specifically
 <IfModule mod_rewrite.c>

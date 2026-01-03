@@ -26,11 +26,12 @@ function detectCountryFromIP($ip) {
     }
     
     // Use free IP geolocation API (ip-api.com - free tier: 45 requests/minute)
+    // Reduced timeout for faster redirect
     $url = "http://ip-api.com/json/{$ip}?fields=countryCode";
     
     $context = stream_context_create([
         'http' => [
-            'timeout' => 2, // 2 second timeout
+            'timeout' => 0.5, // 0.5 second timeout for faster redirect
             'method' => 'GET'
         ]
     ]);

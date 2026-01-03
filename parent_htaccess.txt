@@ -1,5 +1,5 @@
-# Ensure index.html is served as the default index file
-DirectoryIndex index.html index.php
+# Ensure index.php is served first for instant server-side redirect
+DirectoryIndex index.php index.html
 
 # Optional: Redirect root to coming-soon if index.html doesn't exist
 # RewriteEngine On

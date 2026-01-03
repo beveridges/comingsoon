@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Test</title>
+</head>
+<body>
+    <h1>Video File Test</h1>
+    <p>Testing direct video access:</p>
+    <video controls width="800" height="600">
+        <source src="video/background3.webm" type="video/webm">
+        Your browser does not support the video tag.
+    </video>
+    
+    <hr>
+    <h2>Diagnostics:</h2>
+    <div id="diagnostics"></div>
+    
+    <script>
+        const video = document.querySelector('video');
+        const diagnostics = document.getElementById('diagnostics');
+        
+        function addDiagnostic(msg) {
+            const p = document.createElement('p');
+            p.textContent = msg;
+            diagnostics.appendChild(p);
+            console.log(msg);
+        }
+        
+        video.addEventListener('loadstart', () => {
+            addDiagnostic('✓ Video load started');
+        });
+        
+        video.addEventListener('loadedmetadata', () => {
+            addDiagnostic('✓ Video metadata loaded - Duration: ' + video.duration + 's');
+            addDiagnostic('✓ Video readyState: ' + video.readyState);
+        });
+        
+        video.addEventListener('loadeddata', () => {
+            addDiagnostic('✓ Video data loaded');
+        });
+        
+        video.addEventListener('canplay', () => {
+            addDiagnostic('✓ Video can play');
+        });
+        
+        video.addEventListener('error', (e) => {
+            const error = video.error;
+            if (error) {
+                addDiagnostic('✗ ERROR - Code: ' + error.code);
+                addDiagnostic('✗ ERROR - Message: ' + error.message);
+                switch(error.code) {
+                    case error.MEDIA_ERR_ABORTED:
+                        addDiagnostic('✗ Error: Video loading aborted');
+                        break;
+                    case error.MEDIA_ERR_NETWORK:
+                        addDiagnostic('✗ Error: Network error - file may not exist or server issue');
+                        break;
+                    case error.MEDIA_ERR_DECODE:
+                        addDiagnostic('✗ Error: Video decode error - file may be corrupt');
+                        break;
+                    case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        addDiagnostic('✗ Error: Video format not supported or MIME type wrong');
+                        break;
+                }
+            }
+        });
+        
+        // Check if video source is accessible
+        fetch('video/background3.webm', { method: 'HEAD' })
+            .then(response => {
+                addDiagnostic('✓ Fetch HEAD request - Status: ' + response.status);
+                addDiagnostic('✓ Content-Type: ' + response.headers.get('content-type'));
+                addDiagnostic('✓ Content-Length: ' + response.headers.get('content-length') + ' bytes');
+            })
+            .catch(error => {
+                addDiagnostic('✗ Fetch HEAD request failed: ' + error.message);
+            });
+    </script>
+</body>
+</html>
+

@@ -106,8 +106,23 @@ try {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE NOT NULL,
         ip_address TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        removal_requested_at DATETIME,
+        cnx_req INTEGER DEFAULT 0
     )");
+    
+    // Add columns if they don't exist (for existing databases)
+    try {
+        $db->exec("ALTER TABLE emails ADD COLUMN removal_requested_at DATETIME");
+    } catch (PDOException $e) {
+        // Column might already exist, ignore error
+    }
+    
+    try {
+        $db->exec("ALTER TABLE emails ADD COLUMN cnx_req INTEGER DEFAULT 0");
+    } catch (PDOException $e) {
+        // Column might already exist, ignore error
+    }
     
     $db->exec("CREATE TABLE IF NOT EXISTS rate_limits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -139,6 +154,18 @@ try {
     }
     
     // Insert email
+    // Check if email was previously marked for removal
+    $stmt_check = $db->prepare("SELECT removal_requested_at, cnx_req FROM emails WHERE email = :email");
+    $stmt_check->execute([':email' => $email]);
+    $existing = $stmt_check->fetch(PDO::FETCH_ASSOC);
+    
+    if ($existing && ($existing['removal_requested_at'] || $existing['cnx_req'] == 1)) {
+        // Email was previously marked for removal, don't re-add it
+        echo "This email address was previously removed from our list.";
+        exit;
+    }
+    
+    // Insert email (or ignore if already exists and not marked for removal)
     $stmt_email = $db->prepare("INSERT OR IGNORE INTO emails (email, ip_address) VALUES (:email, :ip)");
     $stmt_email->execute([':email' => $email, ':ip' => $client_ip]);
     $email_inserted = $stmt_email->rowCount() > 0;

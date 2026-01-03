@@ -1,22 +1,27 @@
 <?php
 /**
- * Root index file with IP-based language detection
- * This replaces index.html for better server-side IP detection
+ * Root index file - INSTANT redirect
+ * Uses browser language only for maximum speed (no API calls)
  */
 
-// Include language detection (adjust path based on where this file is located)
-// If index.php is in /public_html/, use this path:
-require_once __DIR__ . '/coming-soon/detect_language.php';
+// Prevent any output
+ob_start();
 
-// If index.php is in /public_html/coming-soon/, use:
-// require_once __DIR__ . '/detect_language.php';
+// Instant browser language detection (no API calls, no delays)
+$detected_lang = 'en'; // Default
 
-// Detect language from IP
-$detected_lang = detectLanguage();
+if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    $lang = strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2));
+    if ($lang === 'es' || $lang === 'de') {
+        $detected_lang = $lang;
+    }
+}
 
-// Redirect to appropriate language
-$redirect_url = "/coming-soon/{$detected_lang}/";
-header("Location: {$redirect_url}", true, 302);
+// Clear output buffer
+ob_end_clean();
+
+// Instant redirect - no delays, no API calls
+header("Location: /coming-soon/{$detected_lang}/", true, 301);
 exit;
 ?>
 

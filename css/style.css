@@ -131,6 +131,16 @@ form {
   align-items: stretch;
   gap: 2px;
   flex-wrap: nowrap;
+  min-height: 44px; /* Maintain minimum height for thank you message */
+}
+
+.thank-you-message {
+  color: white;
+  font-size: 1.1em;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
 }
 
 input[type="email"] {

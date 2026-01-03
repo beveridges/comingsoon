@@ -107,11 +107,20 @@ try {
     $stmt = $db->query("SELECT * FROM emails ORDER BY created_at DESC");
     $emails = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Add removal_requested_at column if it doesn't exist (for existing databases)
+    try {
+        $db->exec("ALTER TABLE emails ADD COLUMN removal_requested_at DATETIME");
+    } catch (PDOException $e) {
+        // Column might already exist, ignore error
+    }
+    
     // Get statistics
     $total_emails = $db->query("SELECT COUNT(*) FROM emails")->fetchColumn();
-    $today_count = $db->query("SELECT COUNT(*) FROM emails WHERE DATE(created_at) = DATE('now')")->fetchColumn();
-    $this_week = $db->query("SELECT COUNT(*) FROM emails WHERE created_at > datetime('now', '-7 days')")->fetchColumn();
-    $this_month = $db->query("SELECT COUNT(*) FROM emails WHERE created_at > datetime('now', '-30 days')")->fetchColumn();
+    $active_emails = $db->query("SELECT COUNT(*) FROM emails WHERE removal_requested_at IS NULL")->fetchColumn();
+    $removal_requests = $db->query("SELECT COUNT(*) FROM emails WHERE removal_requested_at IS NOT NULL")->fetchColumn();
+    $today_count = $db->query("SELECT COUNT(*) FROM emails WHERE DATE(created_at) = DATE('now') AND removal_requested_at IS NULL")->fetchColumn();
+    $this_week = $db->query("SELECT COUNT(*) FROM emails WHERE created_at > datetime('now', '-7 days') AND removal_requested_at IS NULL")->fetchColumn();
+    $this_month = $db->query("SELECT COUNT(*) FROM emails WHERE created_at > datetime('now', '-30 days') AND removal_requested_at IS NULL")->fetchColumn();
     
 } catch (Exception $e) {
     die("Database error: " . $e->getMessage());

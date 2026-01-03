@@ -28,12 +28,16 @@ REMOTE_PRIVATE_DIR = '/private'               # Where .htaccess goes (outside pu
 FILES_TO_UPLOAD = [
     'save_email.php',
     'config.php',  # You'll need to edit this on server with correct database path
+    'remove_email.php',
+    'view_emails.php',
+    'detect_language.php',
+    'coming-soon-index.php',
 ]
 
 # Root-level files (upload to /public_html/, not /coming-soon/)
 ROOT_FILES = [
-    'index.html',  # Root redirect to coming-soon
-    '.htaccess',   # Ensure index.html is served
+    'index.php',   # Root redirect to coming-soon (instant server-side redirect)
+    '.htaccess',   # Ensure index.php is served first
 ]
 
 DIRS_TO_UPLOAD = [
@@ -60,6 +64,7 @@ EXCLUDE_PATTERNS = [
     'error_log',
     '__pycache__',
     '*.pyc',
+    '*.afdesign',
     'deploy_ftp.py',
     'DEPLOYMENT.md',
 ]
@@ -71,9 +76,22 @@ EXCLUDE_PATTERNS = [
 def should_exclude(filepath):
     """Check if file should be excluded from upload"""
     name = os.path.basename(filepath)
+    
+    # Check for exact matches or patterns
     for pattern in EXCLUDE_PATTERNS:
-        if pattern in name or name.startswith('.'):
+        # Handle wildcard patterns (e.g., *.sqlite, *.afdesign)
+        if pattern.startswith('*.'):
+            extension = pattern[1:]  # Remove the *
+            if name.endswith(extension):
+                return True
+        # Handle exact matches
+        elif pattern in name:
             return True
+    
+    # Exclude hidden files (starting with .)
+    if name.startswith('.'):
+        return True
+    
     return False
 
 def ensure_remote_directory(ftp, remote_dir):
@@ -311,6 +329,22 @@ def main():
             print(f"   Error details: {type(e).__name__}")
             import traceback
             traceback.print_exc()
+        
+        print()
+        
+        # Upload .htaccess to coming-soon directory
+        print("Uploading .htaccess to coming-soon directory...")
+        htaccess_coming_soon_local = '.htaccess-coming-soon'
+        if os.path.exists(htaccess_coming_soon_local):
+            # Make sure we're in coming-soon directory
+            try:
+                ftp.cwd(REMOTE_WEB_ROOT)
+                upload_file(ftp, htaccess_coming_soon_local, '.htaccess')
+                print("✓ .htaccess uploaded to coming-soon directory")
+            except Exception as e:
+                print(f"⚠️  Could not upload .htaccess to coming-soon: {e}")
+        else:
+            print("⚠️  .htaccess-coming-soon file not found")
         
         print()
         

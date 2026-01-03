@@ -1,7 +1,7 @@
 // =====================================================
 // FORM SUBMISSION WITH reCAPTCHA
 // =====================================================
-document.addEventListener("DOMContentLoaded", function () {
+function initFormHandler() {
   const form = document.getElementById("notifyForm");
   const responseElement = document.getElementById("response");
   if (!form) return;
@@ -34,16 +34,66 @@ document.addEventListener("DOMContentLoaded", function () {
                                !text.toLowerCase().includes("error");
               
               if (isSuccess) {
-                // Simple success message - no animation
+                // Replace form with thank you message, lock box size
                 const lang = document.documentElement.lang || "en";
                 const messages = {
-                  "en": "Thank you! We will notify you soon.",
-                  "es": "¡Gracias! Te notificaremos pronto.",
-                  "de": "Vielen Dank! Wir werden Sie bald benachrichtigen."
+                  "en": "Thank you for your interest!",
+                  "es": "¡Gracias por tu interés!",
+                  "de": "Vielen Dank für Ihr Interesse!"
                 };
-                responseElement.textContent = messages[lang] || messages["en"];
-                responseElement.style.color = "#4ade80";
-                form.reset();
+                
+                const contentBox = form.closest(".content-box");
+                
+                // Lock content box dimensions to prevent resizing
+                if (contentBox) {
+                  const currentHeight = contentBox.offsetHeight;
+                  const currentWidth = contentBox.offsetWidth;
+                  const computedStyle = window.getComputedStyle(contentBox);
+                  const currentPadding = computedStyle.padding;
+                  const currentMaxWidth = computedStyle.maxWidth;
+                  
+                  // Lock ALL dimensions with inline styles
+                  contentBox.style.setProperty("height", currentHeight + "px", "important");
+                  contentBox.style.setProperty("min-height", currentHeight + "px", "important");
+                  contentBox.style.setProperty("max-height", currentHeight + "px", "important");
+                  contentBox.style.setProperty("width", currentWidth + "px", "important");
+                  contentBox.style.setProperty("min-width", currentWidth + "px", "important");
+                  contentBox.style.setProperty("max-width", currentMaxWidth, "important");
+                  contentBox.style.setProperty("padding", currentPadding, "important");
+                }
+                
+                // Keep form in layout but hide its contents and show thank you message instead
+                const formHeight = form.offsetHeight;
+                const formMarginTop = window.getComputedStyle(form).marginTop;
+                
+                // Hide form inputs/button
+                const emailInput = form.querySelector('input[type="email"]');
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (emailInput) emailInput.style.display = 'none';
+                if (submitBtn) submitBtn.style.display = 'none';
+                
+                form.style.height = formHeight + 'px';
+                form.style.marginTop = formMarginTop;
+                form.style.display = 'flex';
+                form.style.alignItems = 'center';
+                form.style.justifyContent = 'center';
+                
+                // Create and show thank you message inside the form
+                const thankYouMessage = document.createElement('p');
+                thankYouMessage.className = 'thank-you-message';
+                thankYouMessage.textContent = messages[lang] || messages["en"];
+                thankYouMessage.style.margin = '0';
+                thankYouMessage.style.color = 'white';
+                thankYouMessage.style.fontSize = '1.1em';
+                thankYouMessage.style.fontWeight = '500';
+                
+                // Add message to form
+                form.appendChild(thankYouMessage);
+                
+                // Hide response element if it exists
+                if (responseElement) {
+                  responseElement.style.display = 'none';
+                }
               } else {
                 responseElement.textContent = text;
                 responseElement.style.color = "#ff6b6b";
@@ -62,6 +112,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+}
+
+// Initialize form handler on page load
+document.addEventListener("DOMContentLoaded", function () {
+  initFormHandler();
 });
 
 
@@ -124,12 +179,13 @@ function showPrivacyModal() {
   // Set content
   document.getElementById("privacyModalTitle").textContent = message.title;
   
-  // Create inline link for removal
+  // Create inline link for removal - use language-specific path
+  // Since we're already in the language directory (en/, es/, de/), use relative path
   const textElement = document.getElementById("privacyModalText");
   textElement.innerHTML = message.text + 
-    '<a href="../remove.html" style="color: #1e90ff; text-decoration: none; border-bottom: 1px solid #1e90ff;">' + 
+    '<a href="remove.html" style="color: #1e90ff; text-decoration: none; border-bottom: 1px solid #1e90ff;">' + 
     message.removalLink + 
-    '</a>' + 
+    '</a>' +
     message.textAfter;
   
   // Show modal
@@ -154,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const isMobile = window.matchMedia("(max-width: 1024px)").matches;
 
+  // Only handle mobile - desktop video uses CSS + autoplay
   if (isMobile) {
     video.pause();
     video.removeAttribute("loop");
@@ -250,15 +307,150 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     playClip(currentIndex);
-
   } else {
     // === Desktop ===
-    video.style.objectFit = "cover";
-    video.style.position = "fixed";
-    video.style.top = "0";
-    video.style.left = "0";
-    video.style.width = "100vw";
-    video.style.height = "100vh";
-    video.style.objectPosition = "center center";
+    // Video element already has autoplay attribute, but ensure it plays
+    // in case browser blocks autoplay
+    if (video.paused) {
+      video.play().catch(err => {
+        // Autoplay blocked - will play when user interacts or when video is ready
+        console.warn("Video autoplay blocked:", err);
+      });
+    }
+    
+    // Also try to play when video becomes ready (handles delayed autoplay)
+    video.addEventListener('loadeddata', function() {
+      if (video.paused) {
+        video.play().catch(err => {
+          console.warn("Video play failed:", err);
+        });
+      }
+    }, { once: true });
   }
+});
+
+
+// =====================================================
+// CONTINUOUS VIDEO ANIMATION - AJAX LANGUAGE SWITCHING
+// Video continues playing uninterrupted when changing languages
+// =====================================================
+document.addEventListener("DOMContentLoaded", function() {
+  const langLinks = document.querySelectorAll('.lang-link');
+  
+  // Initialize language switcher on page load
+  function initLanguageSwitcher() {
+    langLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        // Don't do anything if clicking the active language
+        if (link.classList.contains('active')) {
+          e.preventDefault();
+          return;
+        }
+        
+        e.preventDefault();
+        const targetUrl = link.getAttribute('href');
+        
+        // Show loading state (optional - you can remove this if not needed)
+        link.style.opacity = '0.6';
+        link.style.pointerEvents = 'none';
+        
+        // Fetch the new page
+        fetch(targetUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.text();
+          })
+          .then(html => {
+            // Create a temporary DOM to extract content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Update the content box
+            const newContentBox = doc.querySelector('.content-box');
+            const currentContentBox = document.querySelector('.content-box');
+            if (newContentBox && currentContentBox) {
+              // Preserve any locked dimensions if form was submitted
+              const currentStyles = window.getComputedStyle(currentContentBox);
+              const hasLockedDimensions = currentContentBox.style.height || 
+                                        currentContentBox.style.minHeight === currentContentBox.style.maxHeight;
+              
+              // Update content
+              currentContentBox.innerHTML = newContentBox.innerHTML;
+              
+              // Re-apply locked dimensions if they existed
+              if (hasLockedDimensions) {
+                currentContentBox.style.setProperty("height", currentStyles.height, "important");
+                currentContentBox.style.setProperty("min-height", currentStyles.minHeight, "important");
+                currentContentBox.style.setProperty("max-height", currentStyles.maxHeight, "important");
+                currentContentBox.style.setProperty("width", currentStyles.width, "important");
+                currentContentBox.style.setProperty("min-width", currentStyles.minWidth, "important");
+                currentContentBox.style.setProperty("max-width", currentStyles.maxWidth, "important");
+                currentContentBox.style.setProperty("padding", currentStyles.padding, "important");
+              } else {
+                // Reset dimensions if no form was submitted
+                currentContentBox.style.removeProperty("height");
+                currentContentBox.style.removeProperty("min-height");
+                currentContentBox.style.removeProperty("max-height");
+                currentContentBox.style.removeProperty("width");
+                currentContentBox.style.removeProperty("min-width");
+                currentContentBox.style.removeProperty("max-width");
+                currentContentBox.style.removeProperty("padding");
+              }
+              
+              // Update content-box class (for German wider box)
+              currentContentBox.className = newContentBox.className;
+            }
+            
+            // Update language switcher active state
+            langLinks.forEach(l => {
+              l.classList.remove('active');
+              l.style.opacity = '';
+              l.style.pointerEvents = '';
+            });
+            link.classList.add('active');
+            
+            // Update document lang attribute
+            document.documentElement.lang = doc.documentElement.lang || 'en';
+            
+            // Update page title
+            document.title = doc.querySelector('title')?.textContent || document.title;
+            
+            // Update meta description if needed
+            const metaDesc = doc.querySelector('meta[name="description"]');
+            if (metaDesc) {
+              let currentMetaDesc = document.querySelector('meta[name="description"]');
+              if (currentMetaDesc) {
+                currentMetaDesc.setAttribute('content', metaDesc.getAttribute('content'));
+              }
+            }
+            
+            // Update URL without reload
+            window.history.pushState({}, '', targetUrl);
+            
+            // Re-initialize form event listener after content swap
+            // (The form element was replaced with new HTML, so we need to re-attach the handler)
+            initFormHandler();
+            
+            // Video continues playing - no interruption! 🎉
+          })
+          .catch(err => {
+            console.error('Error loading language page:', err);
+            // Fallback to normal navigation if AJAX fails
+            window.location.href = targetUrl;
+          });
+      });
+    });
+  }
+  
+  // Initialize language switcher
+  initLanguageSwitcher();
+  
+  // Handle browser back/forward buttons
+  window.addEventListener('popstate', function(e) {
+    // For back/forward navigation, do a full reload to ensure everything works correctly
+    // This is simpler and more reliable than trying to restore state
+    window.location.reload();
+  });
 });
